@@ -1,0 +1,14 @@
+{
+  "@@locale": "am",
+  "appTitle": "የታመነ የቤት ግንኙነት",
+  "loginTitle": "በስልክዎ ይግቡ",
+  "phoneHint": "09XXXXXXXX",
+  "requestOtp": "ኮድ ላክ",
+  "verifyOtp": "አረጋግጥ",
+  "otpHint": "6 አሃዝ ኮድ",
+  "properties": "ንብረቶች",
+  "workers": "ሠራተኞች",
+  "profile": "መገለጫ",
+  "languageEnglish": "English",
+  "languageAmharic": "አማርኛ"
+}

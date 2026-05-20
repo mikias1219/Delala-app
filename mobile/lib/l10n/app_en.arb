@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "appTitle": "Trusted Home Connect",
+  "loginTitle": "Sign in with your phone",
+  "phoneHint": "09XXXXXXXX",
+  "requestOtp": "Send code",
+  "verifyOtp": "Verify",
+  "otpHint": "6-digit code",
+  "properties": "Properties",
+  "workers": "Workers",
+  "profile": "Profile",
+  "languageEnglish": "English",
+  "languageAmharic": "አማርኛ"
+}
