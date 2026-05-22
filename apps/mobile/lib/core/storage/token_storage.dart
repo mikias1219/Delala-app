@@ -7,7 +7,7 @@ class TokenStorage {
   TokenStorage({FlutterSecureStorage? storage})
       : _storage = storage ?? const FlutterSecureStorage();
 
-  static const _accessTokenKey = 'thcp_access_token';
+  static const _accessTokenKey = 'delala_access_token';
 
   final FlutterSecureStorage _storage;
 

@@ -54,3 +54,6 @@ coverage/
 
 # Docker local volumes
 postgres_data/
+
+# Local dev runtime (API pid/logs)
+.dev/

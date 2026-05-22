@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/network/api_client.dart';
+import '../data/auth_api.dart';
 import '../../../core/network/api_exception.dart';
 import '../providers/auth_provider.dart';
 
@@ -40,8 +40,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _devCode = null;
     });
     try {
-      final api = ref.read(apiClientProvider);
-      final result = await api.requestOtp(
+      final result = await ref.read(authApiProvider).requestOtp(
         _phoneController.text.trim(),
         role: _role,
       );
@@ -93,7 +92,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           children: [
             const SizedBox(height: 32),
             Text(
-              'Trusted Home Connect',
+              'Delala',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

@@ -21,8 +21,11 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = config.get<number>('port') ?? 3000;
-  await app.listen(port);
+  const port = config.get<number>('port') ?? 3010;
+  const host = config.get<string>('apiHost') ?? '0.0.0.0';
+  await app.listen(port, host);
+  // eslint-disable-next-line no-console
+  console.log(`API listening on http://${host}:${port}/${config.get<string>('apiPrefix') ?? 'api/v1'}`);
 }
 
 bootstrap();

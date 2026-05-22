@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/api_client.dart';
 import '../../../core/network/api_exception.dart';
+import '../data/workers_api.dart';
 
 final workersProvider = FutureProvider.autoDispose<List<dynamic>>((ref) {
-  return ref.watch(apiClientProvider).getWorkers();
+  return ref.watch(workersApiProvider).list();
 });
 
 class WorkersScreen extends ConsumerWidget {

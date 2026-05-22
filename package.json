@@ -1,0 +1,12 @@
+{
+  "name": "delala",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Delala monorepo — API + mobile",
+  "scripts": {
+    "dev": "./scripts/dev.sh",
+    "stop": "./scripts/dev.sh --stop",
+    "build:mobile": "./scripts/build-mobile.sh",
+    "test:api": "npm run test:e2e --prefix apps/api"
+  }
+}

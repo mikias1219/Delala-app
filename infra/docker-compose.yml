@@ -1,0 +1,35 @@
+name: delala
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: delala-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-delala}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-delala_dev_password}
+      POSTGRES_DB: ${DATABASE_NAME:-delala}
+    ports:
+      - '${DATABASE_HOST_PORT:-5435}:5432'
+    volumes:
+      - delala_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-delala} -d ${DATABASE_NAME:-delala}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: delala-redis
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6381}:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  delala_postgres_data:

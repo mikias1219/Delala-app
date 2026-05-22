@@ -8,7 +8,7 @@ export class HealthController {
   check() {
     return {
       status: 'ok',
-      service: 'thcp-api',
+      service: 'delala-api',
       timestamp: new Date().toISOString(),
     };
   }

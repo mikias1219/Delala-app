@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/property_model.dart';
-import '../../../core/network/api_client.dart';
+import '../data/properties_api.dart';
 import '../../../core/network/api_exception.dart';
 import '../../auth/providers/auth_provider.dart';
 
 final propertyDetailProvider =
     FutureProvider.autoDispose.family<PropertyModel, String>((ref, id) {
-  return ref.watch(apiClientProvider).getProperty(id);
+  return ref.watch(propertiesApiProvider).getById(id);
 });
 
 class PropertyDetailScreen extends ConsumerStatefulWidget {
@@ -26,9 +26,9 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen> {
   Future<void> _requestViewing() async {
     setState(() => _booking = true);
     try {
-      await ref.read(apiClientProvider).requestViewing(
+      await ref.read(propertiesApiProvider).requestViewing(
             propertyId: widget.propertyId,
-            notes: 'Requested via THCP app',
+            notes: 'Requested via Delala app',
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

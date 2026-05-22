@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/user_model.dart';
-import '../../../core/network/api_client.dart';
+import '../data/auth_api.dart';
 
-final currentUserProvider = StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>(
-  (ref) => AuthNotifier(ref.watch(apiClientProvider)),
+final currentUserProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>(
+  (ref) => AuthNotifier(ref.watch(authApiProvider)),
 );
 
 class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
@@ -11,7 +12,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     _load();
   }
 
-  final ApiClient _api;
+  final AuthApi _api;
 
   Future<void> _load() async {
     try {

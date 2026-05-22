@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/network/api_client.dart';
 import '../../../core/network/api_exception.dart';
+import '../../workers/data/workers_api.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -71,7 +71,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Future<void> _setupWorkerProfile(BuildContext context, WidgetRef ref) async {
     try {
-      await ref.read(apiClientProvider).upsertWorkerProfile(
+      await ref.read(workersApiProvider).upsertProfile(
             skills: ['cleaning', 'cooking'],
             availability: 'full-time',
             salaryExpectation: 4500,
@@ -91,7 +91,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Future<void> _postJob(BuildContext context, WidgetRef ref) async {
     try {
-      await ref.read(apiClientProvider).createJob(
+      await ref.read(workersApiProvider).createJob(
             jobType: 'live-in maid',
             location: 'Bole, Addis Ababa',
             salaryOffer: 5000,

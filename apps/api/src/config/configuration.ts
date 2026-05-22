@@ -1,13 +1,14 @@
 export default () => ({
   nodeEnv: process.env.NODE_ENV ?? 'development',
-  port: parseInt(process.env.PORT ?? '3000', 10),
+  port: parseInt(process.env.PORT ?? '3010', 10),
+  apiHost: process.env.API_HOST ?? '0.0.0.0',
   apiPrefix: process.env.API_PREFIX ?? 'api/v1',
   database: {
     host: process.env.DATABASE_HOST ?? 'localhost',
     port: parseInt(process.env.DATABASE_PORT ?? '5432', 10),
-    username: process.env.DATABASE_USER ?? 'thcp',
-    password: process.env.DATABASE_PASSWORD ?? 'thcp_dev_password',
-    name: process.env.DATABASE_NAME ?? 'thcp',
+    username: process.env.DATABASE_USER ?? 'delala',
+    password: process.env.DATABASE_PASSWORD ?? 'delala_dev_password',
+    name: process.env.DATABASE_NAME ?? 'delala',
   },
   redis: {
     host: process.env.REDIS_HOST ?? 'localhost',
