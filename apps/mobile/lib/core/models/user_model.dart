@@ -10,12 +10,14 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] as String,
-      phone: json['phone'] as String,
-      role: json['role'] as String,
+      id: json['id'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
+      role: json['role'] as String? ?? 'renter',
       fullName: json['fullName'] as String?,
-      status: json['status'] as String,
-      trustScore: json['trustScore'] as Map<String, dynamic>?,
+      status: json['status'] as String? ?? 'active',
+      trustScore: json['trustScore'] is Map<String, dynamic>
+          ? json['trustScore'] as Map<String, dynamic>
+          : null,
     );
   }
 

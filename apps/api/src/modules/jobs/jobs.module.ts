@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { WorkerProfile } from '../workers/entities/worker-profile.entity';
 import { JobPost } from './entities/job-post.entity';
 import { Match } from './entities/match.entity';
@@ -7,7 +8,10 @@ import { JobsController } from './jobs.controller';
 import { JobsService } from './jobs.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([JobPost, Match, WorkerProfile])],
+  imports: [
+    TypeOrmModule.forFeature([JobPost, Match, WorkerProfile]),
+    NotificationsModule,
+  ],
   controllers: [JobsController],
   providers: [JobsService],
   exports: [JobsService],

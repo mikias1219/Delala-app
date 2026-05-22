@@ -1,4 +1,4 @@
-package et.thcp.thcp_mobile
+package et.delala.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 

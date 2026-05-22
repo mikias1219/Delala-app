@@ -42,8 +42,8 @@ chmod +x scripts/*.sh
 ./scripts/dev.sh --mobile     # + Flutter on USB phone
 ./scripts/dev.sh --stop       # stop all
 
-./scripts/build-mobile.sh           # release APK (arm64, fast)
-./scripts/build-mobile.sh --fast    # debug APK (~1 min, for testing)
+./scripts/build-mobile.sh              # debug APK (~1–3 min; first build ~15 min)
+./scripts/build-mobile.sh --release    # release APK for sharing
 ./scripts/build-mobile.sh --install
 
 npm run dev                   # same as ./scripts/dev.sh

@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { JobStatus } from '../../common/enums/job-status.enum';
 import { MatchStatus } from '../../common/enums/match-status.enum';
 import { UserRole } from '../../common/enums/user-role.enum';
+import { NotificationsService } from '../notifications/notifications.service';
 import { WorkerProfile } from '../workers/entities/worker-profile.entity';
 import { JobPost } from './entities/job-post.entity';
 import { Match } from './entities/match.entity';
@@ -20,6 +21,7 @@ export class JobsService {
     @InjectRepository(Match) private readonly matchesRepo: Repository<Match>,
     @InjectRepository(WorkerProfile)
     private readonly workersRepo: Repository<WorkerProfile>,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async create(
@@ -94,6 +96,14 @@ export class JobsService {
       workerId: workerProfileId,
       status: MatchStatus.APPLIED,
     });
-    return this.matchesRepo.save(match);
+    const saved = await this.matchesRepo.save(match);
+
+    await this.notifications.create(job.employerId, 'job_application', {
+      jobPostId,
+      matchId: saved.id,
+      workerProfileId,
+    });
+
+    return saved;
   }
 }

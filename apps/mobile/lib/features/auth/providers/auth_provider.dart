@@ -8,8 +8,9 @@ final currentUserProvider =
 );
 
 class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
-  AuthNotifier(this._api) : super(const AsyncValue.loading()) {
-    _load();
+  AuthNotifier(this._api) : super(const AsyncValue.data(null)) {
+    // Defer API call so login screen opens even if server is offline
+    Future.microtask(_load);
   }
 
   final AuthApi _api;

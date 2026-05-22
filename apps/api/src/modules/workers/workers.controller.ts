@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Put, Query } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
@@ -11,7 +10,7 @@ import { WorkersService } from './workers.service';
 export class WorkersController {
   constructor(private readonly workersService: WorkersService) {}
 
-  @Public()
+  @Roles(UserRole.EMPLOYER, UserRole.ADMIN)
   @Get()
   search(@Query('skills') skills?: string | string[]) {
     const skillList = !skills

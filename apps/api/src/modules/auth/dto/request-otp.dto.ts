@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, Matches } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString, Matches } from 'class-validator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 
 export class RequestOtpDto {
@@ -11,4 +11,8 @@ export class RequestOtpDto {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
+
+  @IsOptional()
+  @IsBoolean()
+  isRegistration?: boolean;
 }

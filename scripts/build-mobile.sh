@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Build Android APK — optimized for speed (arm64 only by default).
+# Build Android APK — optimized for speed.
 #
 # Usage:
-#   ./scripts/build-mobile.sh              # release APK, ~2–5 min after first build
-#   ./scripts/build-mobile.sh --fast       # debug APK, quickest for testing
-#   ./scripts/build-mobile.sh --install    # release + install via USB
-#   ./scripts/build-mobile.sh --all-abis   # fat APK (arm + arm64 + x64, slow)
+#   ./scripts/build-mobile.sh              # debug APK (~1–3 min after first build)
+#   ./scripts/build-mobile.sh --release  # release APK (slower, for sharing)
+#   ./scripts/build-mobile.sh --install  # build + USB install
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 MOBILE="$ROOT/apps/mobile"
+RELEASE=false
 INSTALL=false
-FAST=false
 ALL_ABIS=false
 
 for arg in "$@"; do
   case "$arg" in
+    --release) RELEASE=true ;;
     --install) INSTALL=true ;;
-    --fast) FAST=true ;;
     --all-abis) ALL_ABIS=true ;;
+    --fast) ;; # default now; kept for compatibility
   esac
 done
 
@@ -42,34 +42,29 @@ flutter config --android-sdk "${ANDROID_HOME}" >/dev/null 2>&1 || true
 
 cd "$MOBILE"
 
-# Skip pub get if lockfile unchanged (saves ~5–15s)
-LOCK_HASH_FILE="$ROOT/.dev/pubspec.hash"
-CURRENT_HASH=$(md5sum pubspec.lock 2>/dev/null | cut -d' ' -f1 || echo none)
-if [[ -f "$LOCK_HASH_FILE" ]] && [[ "$(cat "$LOCK_HASH_FILE")" == "$CURRENT_HASH" ]]; then
-  echo "Dependencies up to date (skipped pub get)"
-else
-  flutter pub get
-  mkdir -p "$ROOT/.dev"
-  echo "$CURRENT_HASH" >"$LOCK_HASH_FILE"
-fi
+ARGS=(
+  --target-platform android-arm64
+  --dart-define=API_BASE_URL="$API_URL"
+)
 
-BUILD_ARGS=(--dart-define=API_BASE_URL="$API_URL")
-
-# arm64 only = one native build instead of three (biggest speed win)
 if ! $ALL_ABIS; then
-  BUILD_ARGS+=(--target-platform android-arm64)
-fi
-
-if $FAST; then
-  echo "Fast debug build (arm64) → API: $API_URL"
-  flutter build apk --debug "${BUILD_ARGS[@]}"
-  APK="$MOBILE/build/app/outputs/flutter-apk/app-debug.apk"
+  : # arm64 only (default)
 else
-  echo "Release build (arm64) → API: $API_URL"
-  flutter build apk --release "${BUILD_ARGS[@]}"
-  APK="$MOBILE/build/app/outputs/flutter-apk/app-release.apk"
+  ARGS=() # all ABIs
 fi
 
+if $RELEASE; then
+  echo "▶ Release APK (arm64) — API: $API_URL"
+  flutter build apk --release "${ARGS[@]}"
+  APK="$MOBILE/build/app/outputs/flutter-apk/app-release.apk"
+else
+  echo "▶ Debug APK (arm64, fastest) — API: $API_URL"
+  echo "  (First build downloads Gradle deps once — can take 10–15 min; later builds ~1–3 min)"
+  flutter build apk --debug "${ARGS[@]}"
+  APK="$MOBILE/build/app/outputs/flutter-apk/app-debug.apk"
+fi
+
+echo ""
 echo "APK: $APK"
 ls -lh "$APK"
 

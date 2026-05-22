@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import configuration from './config/configuration';
+import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -33,6 +34,7 @@ import { RedisModule } from './redis/redis.module';
       },
     ]),
     DatabaseModule,
+    CommonModule,
     RedisModule,
     HealthModule,
     AuthModule,

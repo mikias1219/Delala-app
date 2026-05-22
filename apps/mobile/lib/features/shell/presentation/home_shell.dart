@@ -1,49 +1,88 @@
 import 'package:flutter/material.dart';
-import '../../profile/presentation/profile_screen.dart';
-import '../../properties/presentation/properties_screen.dart';
-import '../../workers/presentation/workers_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../navigation/shell_nav.dart';
+import 'app_drawer.dart';
 
-class HomeShell extends StatefulWidget {
+class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
   @override
-  State<HomeShell> createState() => _HomeShellState();
+  ConsumerState<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends ConsumerState<HomeShell> {
   int _index = 0;
-
-  static const _tabs = [
-    PropertiesScreen(),
-    WorkersScreen(),
-    ProfileScreen(),
-  ];
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(index: _index, children: _tabs),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Properties',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people),
-            label: 'Workers',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+    final userAsync = ref.watch(currentUserProvider);
+
+    return userAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
       ),
+      error: (e, _) => Scaffold(body: Center(child: Text('$e'))),
+      data: (user) {
+        if (user == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go('/login');
+          });
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final destinations = destinationsForRole(user.role);
+        if (destinations.isEmpty) {
+          return const Scaffold(
+            body: Center(child: Text('No screens for this account')),
+          );
+        }
+        _index = _index.clamp(0, destinations.length - 1);
+        final current = destinations[_index];
+
+        return Scaffold(
+          key: _scaffoldKey,
+          drawer: const AppDrawer(),
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.menu_rounded),
+              onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+            ),
+            title: Text(current.label),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Notifications coming soon')),
+                  );
+                },
+              ),
+            ],
+          ),
+          body: IndexedStack(
+            index: _index,
+            children: destinations.map((d) => d.screen).toList(),
+          ),
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _index,
+            onDestinationSelected: (i) => setState(() => _index = i),
+            destinations: destinations
+                .map(
+                  (d) => NavigationDestination(
+                    icon: Icon(d.icon),
+                    selectedIcon: Icon(d.selectedIcon),
+                    label: d.label,
+                  ),
+                )
+                .toList(),
+          ),
+        );
+      },
     );
   }
 }

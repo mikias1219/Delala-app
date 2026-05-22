@@ -7,7 +7,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PropertyStatus } from '../../common/enums/property-status.enum';
+import { UserRole } from '../../common/enums/user-role.enum';
 import { ViewingStatus } from '../../common/enums/viewing-status.enum';
+import { ContactAccessService } from '../../common/services/contact-access.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { Property } from '../properties/entities/property.entity';
 import { ScheduleViewingDto } from './dto/schedule-viewing.dto';
 import { ViewingRequest } from './entities/viewing-request.entity';
@@ -19,6 +22,8 @@ export class ViewingsService {
     private readonly viewingsRepo: Repository<ViewingRequest>,
     @InjectRepository(Property)
     private readonly propertiesRepo: Repository<Property>,
+    private readonly notifications: NotificationsService,
+    private readonly contactAccess: ContactAccessService,
   ) {}
 
   async createRequest(propertyId: string, renterId: string, notes?: string) {
@@ -42,7 +47,15 @@ export class ViewingsService {
       status: ViewingStatus.REQUESTED,
       notes: notes ?? null,
     });
-    return this.viewingsRepo.save(viewing);
+    const saved = await this.viewingsRepo.save(viewing);
+
+    await this.notifications.create(property.ownerId, 'viewing_requested', {
+      viewingId: saved.id,
+      propertyId,
+      renterId,
+    });
+
+    return saved;
   }
 
   async schedule(
@@ -69,7 +82,15 @@ export class ViewingsService {
     if (dto.notes) {
       viewing.notes = dto.notes;
     }
-    return this.viewingsRepo.save(viewing);
+    const saved = await this.viewingsRepo.save(viewing);
+
+    await this.notifications.create(viewing.renterId, 'viewing_scheduled', {
+      viewingId: saved.id,
+      propertyId: viewing.propertyId,
+      scheduledAt: saved.scheduledAt,
+    });
+
+    return saved;
   }
 
   async listForUser(userId: string, role: string) {
@@ -85,6 +106,27 @@ export class ViewingsService {
       qb.where('v.renterId = :userId', { userId });
     }
 
-    return qb.getMany();
+    const rows = await qb.getMany();
+    const viewerRole =
+      role === 'owner' ? UserRole.OWNER : UserRole.RENTER;
+
+    return Promise.all(
+      rows.map(async (v) => {
+        const otherId =
+          role === 'owner' ? v.renterId : v.property?.ownerId ?? '';
+        const canContact =
+          otherId &&
+          (await this.contactAccess.canViewContact(
+            userId,
+            viewerRole,
+            otherId,
+          ));
+        if (v.renter && !canContact && role === 'owner') {
+          const { phone: _p, nationalIdUrl: _n, ...renterSafe } = v.renter;
+          v.renter = renterSafe as typeof v.renter;
+        }
+        return v;
+      }),
+    );
   }
 }

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/property_model.dart';
-import '../data/properties_api.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../data/properties_api.dart';
 
 final propertyDetailProvider =
     FutureProvider.autoDispose.family<PropertyModel, String>((ref, id) {
@@ -32,14 +33,14 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen> {
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Viewing request sent to owner')),
+          const SnackBar(content: Text('Viewing request sent to the owner')),
         );
         context.pop();
       }
     } on ApiException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message)),
+          SnackBar(content: Text(e.message), backgroundColor: AppColors.error),
         );
       }
     } finally {
@@ -54,45 +55,117 @@ class _PropertyDetailScreenState extends ConsumerState<PropertyDetailScreen> {
     final canBook = user?.role == 'renter';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Property')),
+      appBar: AppBar(title: const Text('Listing details')),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(e.toString())),
-        data: (property) => ListView(
-          padding: const EdgeInsets.all(24),
+        error: (e, _) => Center(child: Text('$e')),
+        data: (property) => Column(
           children: [
-            Text(
-              property.title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  Container(
+                    height: 180,
+                    decoration: BoxDecoration(
+                      color: AppColors.seed.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(Icons.apartment, size: 64, color: AppColors.seed),
                   ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'ETB ${property.priceEtb} / month · ${property.bedrooms} bedrooms',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(property.description),
-            const SizedBox(height: 32),
-            if (canBook)
-              FilledButton(
-                onPressed: _booking ? null : _requestViewing,
-                child: _booking
-                    ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Request viewing'),
-              )
-            else
-              Text(
-                'Sign in as a renter to request a viewing.',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  const SizedBox(height: 20),
+                  Text(
+                    property.title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'ETB ${property.priceEtb} / month',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _InfoChip(icon: Icons.bed_outlined, label: '${property.bedrooms} bed'),
+                      const SizedBox(width: 8),
+                      const _InfoChip(icon: Icons.verified, label: 'Verified'),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Description',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    property.description,
+                    style: TextStyle(
+                      height: 1.5,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: canBook
+                    ? FilledButton(
+                        onPressed: _booking ? null : _requestViewing,
+                        child: _booking
+                            ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text('Request viewing'),
+                      )
+                    : Text(
+                        user?.role == 'owner'
+                            ? 'Owners cannot request viewings on their own listings.'
+                            : 'Only renters can request viewings on verified homes.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16),
+          const SizedBox(width: 4),
+          Text(label, style: const TextStyle(fontSize: 13)),
+        ],
       ),
     );
   }

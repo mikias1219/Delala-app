@@ -28,7 +28,19 @@ export class WorkersService {
       qb.andWhere('w.skills && :skills', { skills });
     }
 
-    return qb.orderBy('w.ratingAvg', 'DESC').take(50).getMany();
+    const workers = await qb.orderBy('w.ratingAvg', 'DESC').take(50).getMany();
+    return workers.map((w) => ({
+      ...w,
+      user: w.user
+        ? {
+            id: w.user.id,
+            fullName: w.user.fullName,
+            role: w.user.role,
+            status: w.user.status,
+            verifiedAt: w.user.verifiedAt,
+          }
+        : undefined,
+    }));
   }
 
   async getMyProfile(userId: string) {

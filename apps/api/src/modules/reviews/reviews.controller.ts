@@ -10,16 +10,10 @@ import { ReviewsService } from './reviews.service';
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @Roles(
-    UserRole.RENTER,
-    UserRole.OWNER,
-    UserRole.WORKER,
-    UserRole.EMPLOYER,
-    UserRole.ADMIN,
-  )
+  @Roles(UserRole.RENTER, UserRole.OWNER, UserRole.WORKER, UserRole.EMPLOYER)
   @Post()
   create(@CurrentUser() user: JwtPayload, @Body() dto: CreateReviewDto) {
-    return this.reviewsService.create(user.sub, dto);
+    return this.reviewsService.create(user.sub, user.role as UserRole, dto);
   }
 
   @Get('user/:userId')

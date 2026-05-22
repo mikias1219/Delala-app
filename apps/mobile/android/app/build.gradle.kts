@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "et.thcp.thcp_mobile"
+    namespace = "et.delala.mobile"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,8 +20,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "et.thcp.thcp_mobile"
+        applicationId = "et.delala.mobile"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -32,9 +31,10 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            // Faster dev APK builds (enable minify for Play Store production)
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
